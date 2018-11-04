@@ -1,3 +1,7 @@
+# libargus
+
+A library for Lisk stuff unter a permissive license.
+
 ## License & History
 
 MIT.
