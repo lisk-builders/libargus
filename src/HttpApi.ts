@@ -10,37 +10,34 @@ export class HttpApi {
   ) {}
 
   public getNodeStatus(): Promise<ResponseObject<NodeStatusExtended>> {
-    const options = { json: true };
-    return request(`${this.baseUrl()}/node/status`, options).promise();
+    return this.get(`${this.baseUrl()}/node/status`);
   }
 
   public getBlocks(): Promise<ResponseList<Block>> {
-    const options = { json: true };
-    return request(`${this.baseUrl()}/blocks?limit=100`, options).promise();
+    return this.get(`${this.baseUrl()}/blocks?limit=100`);
   }
 
   public getForgers(): Promise<ForgerResponse> {
-    const options = { json: true };
-    return request(`${this.baseUrl()}/delegates/forgers?limit=100`, options).promise();
+    return this.get(`${this.baseUrl()}/delegates/forgers?limit=100`);
   }
 
   public getDelegates(): Promise<ResponseList<DelegateDetails>> {
-    const options = { json: true };
-    return request(`${this.baseUrl()}/delegates?limit=101&sort=rank:asc`, options).promise();
+    return this.get(`${this.baseUrl()}/delegates?limit=101&sort=rank:asc`);
   }
 
   public getLastBlockByDelegate(generatorKey: string): Promise<Block> {
-    const options = { json: true };
-    return request(`${this.baseUrl()}/blocks?limit=1&generatorPublicKey=${generatorKey}`, options)
-      .promise()
-      .then(data => data.data[0]);
+    return this.get(`${this.baseUrl()}/blocks?limit=1&generatorPublicKey=${generatorKey}`).then(
+      data => data.data[0],
+    );
   }
 
   public getBlockByHeight(height: number): Promise<Block> {
+    return this.get(`${this.baseUrl()}/blocks?limit=1&height=${height}`).then(data => data.data[0]);
+  }
+
+  protected get(url: string): Promise<any> {
     const options = { json: true };
-    return request(`${this.baseUrl()}/blocks?limit=1&height=${height}`, options)
-      .promise()
-      .then(data => data.data[0]);
+    return request(url, options).promise();
   }
 
   // method is proteced to allow adding endpoints by subclassing
