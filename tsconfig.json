@@ -4,6 +4,10 @@
     "target": "es2015",
     "module": "commonjs",
     "sourceMap": true,
-    "outDir": "build"
+    "outDir": "build",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./custom_types"
+    ],
   }
 }

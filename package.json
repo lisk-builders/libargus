@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.5"
+    "request-promise-native": "^1.0.5",
+    "socketcluster-client": "^14.2.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
