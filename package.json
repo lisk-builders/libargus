@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "description": "A typesafe MIT licensed library to interact with the Lisk blockchain",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "repository": "https://github.com/prolina-foundation/libargus",
   "author": "Simon Warta & Lisk Builders",
   "license": "MIT",
