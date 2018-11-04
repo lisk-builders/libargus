@@ -112,7 +112,9 @@ export class LiskPeer extends events.EventEmitter {
     }
 
     // Apply new status
-    if (!this._status) this._status = status;
+    if (!this._status) {
+      this._status = status;
+    }
     this._status = Object.assign(this._status, status);
     this._options.nonce = status.nonce;
 
@@ -144,7 +146,7 @@ export class LiskPeer extends events.EventEmitter {
     //    })
     //} else {
     this.client.getBlocks().then(blockData => {
-      let filteredBlocks = _.uniq(blockData.blocks, entry => entry.b_id);
+      const filteredBlocks = _.uniq(blockData.blocks, entry => entry.b_id);
     });
     //}
   }
@@ -168,7 +170,9 @@ export class LiskPeer extends events.EventEmitter {
    * Updates the node status, connected peers
    */
   private updateStatus(): void {
-    if (this._state !== PeerState.ONLINE) return;
+    if (this._state !== PeerState.ONLINE) {
+      return;
+    }
 
     this.client
       .getStatus()

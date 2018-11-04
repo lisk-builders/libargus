@@ -67,7 +67,7 @@ export class LiskClient {
   }
 }
 
-export type NodeStatus = {
+export interface NodeStatus {
   success: boolean;
   height: number;
   broadhash: string;
@@ -75,7 +75,7 @@ export type NodeStatus = {
   httpPort: number;
   version: string;
   os: string;
-};
+}
 
 export interface WsBlock {
   b_id: string;

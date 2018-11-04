@@ -134,7 +134,7 @@ export interface Account {
   readonly secondPublicKey: string;
 }
 
-export type DelegateDetails = {
+export interface DelegateDetails {
   readonly rewards: string;
   readonly vote: string;
   readonly producedBlocks: number;
@@ -144,7 +144,7 @@ export type DelegateDetails = {
   readonly approval: number;
   readonly productivity: number;
   readonly account: Account;
-};
+}
 
 export interface ResponseObject<T> {
   readonly meta: any;
