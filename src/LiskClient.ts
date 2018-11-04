@@ -58,11 +58,11 @@ export class LiskClient {
     return this.socket.call("status");
   }
 
-  public getPeers(): Promise<WSPeerResponse> {
+  public getPeers(): Promise<WsPeerResponse> {
     return this.socket.call("list");
   }
 
-  public getBlocks(lasBlockId?: string): Promise<WSBlockResponse> {
+  public getBlocks(lasBlockId?: string): Promise<WsBlockResponse> {
     return this.socket.call("blocks", { lastId: lasBlockId || "" });
   }
 }
@@ -77,7 +77,7 @@ export type NodeStatus = {
   os: string;
 };
 
-export interface WSBlock {
+export interface WsBlock {
   b_id: string;
   b_version: number;
   b_timestamp: number;
@@ -123,11 +123,11 @@ export interface WSBlock {
   t_signatures?: any;
 }
 
-export interface WSBlockResponse {
-  blocks: WSBlock[];
+export interface WsBlockResponse {
+  blocks: WsBlock[];
 }
 
-export interface WSPeerResponse {
+export interface WsPeerResponse {
   success: boolean;
   peers: PeerInfo[];
 }
