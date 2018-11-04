@@ -29,9 +29,9 @@ export class LiskClient {
   private socket: any;
 
   constructor(hostname: string, wsPort: number, httpPort: number, query: object) {
-    this.options.hostname = hostname || "betanet.lisk.io";
-    this.options.port = wsPort || 5001;
-    this.options.httpPort = httpPort || 5000;
+    this.options.hostname = hostname;
+    this.options.port = wsPort;
+    this.options.httpPort = httpPort;
     this.options.query = query;
     this.http = new HttpApi(this.options.hostname, this.options.httpPort);
   }
