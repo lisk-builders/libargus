@@ -1,5 +1,7 @@
 import { expect } from "chai";
+
 import { LiskPeer, PeerOptions, PeerState } from "./LiskPeer";
+import { makeNonce } from "./util/nonce";
 
 const nodeHostname = process.env.LISK_NODE_HOSTNAME || "testnet.lisk.io";
 const nodeHttpPort = Number.parseInt(process.env.LISK_NODE_PORT || "7000", 10);
@@ -7,10 +9,10 @@ const nodeWsPort = Number.parseInt(process.env.LISK_NODE_WSPORT || "7001", 10);
 const nodeSecure = !!process.env.LISK_NODE_SECURE;
 
 describe("LiskPeer", () => {
-  const ownNonce = "6t8g68gf763ffgft";
   const ownVersion = "1.1.1";
 
   it("can be constructed", () => {
+    const ownNonce = makeNonce();
     const options: PeerOptions = {
       // https://github.com/LiskHQ/lisk/blob/1.1.1/config/testnet/config.json
       ip: "94.237.29.221",
@@ -27,6 +29,7 @@ describe("LiskPeer", () => {
   });
 
   it("connects automatically after 2 seconds", done => {
+    const ownNonce = makeNonce();
     const options: PeerOptions = {
       // https://github.com/LiskHQ/lisk/blob/1.1.1/config/testnet/config.json
       ip: "94.237.29.221",
