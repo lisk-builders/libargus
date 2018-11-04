@@ -1,12 +1,12 @@
 /**
  * A light implementation for a WAMP client over SocketCluster
  */
-export class WAMPClient {
+export class WampClient {
   /***
    * Upgrades the socket to a WAMP capable socket
    * @param socket
    */
-  public static registerWAMP(socket: any): void {
+  public static registerWamp(socket: any): void {
     socket.call = (procedure: any, data: any) =>
       new Promise((resolve, reject) => {
         socket.emit(

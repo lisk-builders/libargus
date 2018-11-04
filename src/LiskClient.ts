@@ -1,6 +1,6 @@
 import * as socketCluster from "socketcluster-client";
 
-import { WAMPClient } from "./websockets/WAMPClient";
+import { WampClient } from "./websockets/WampClient";
 import { HttpApi } from "./HttpApi";
 
 /***
@@ -43,7 +43,7 @@ export class LiskClient {
   ) {
     // Initiate the connection to the server
     this.socket = socketCluster.create(this.options);
-    WAMPClient.registerWAMP(this.socket);
+    WampClient.registerWamp(this.socket);
 
     this.socket.on("connect", connectHandler);
     this.socket.on("close", closeHandler);
