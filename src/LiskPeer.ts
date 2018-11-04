@@ -83,7 +83,7 @@ export class LiskPeer extends events.EventEmitter {
 
   private _httpActive: boolean = false;
 
-  get httpActive() {
+  get httpActive(): boolean {
     return this._httpActive;
   }
 
@@ -102,7 +102,7 @@ export class LiskPeer extends events.EventEmitter {
    * Updates sync status and triggers events in case the node is stuck
    * @param {NodeStatus} status
    */
-  public handleStatusUpdate(status: NodeStatus) {
+  public handleStatusUpdate(status: NodeStatus): void {
     if (!this._status || status.height > this._status.height) {
       this._lastHeightUpdate = Date.now();
       this._stuck = false;
@@ -124,7 +124,7 @@ export class LiskPeer extends events.EventEmitter {
    * Set the connection status of the websocket connection for this peer
    * @param {boolean} connected
    */
-  public setWebsocketServerConnected(connected: boolean) {
+  public setWebsocketServerConnected(connected: boolean): void {
     this._wsServerConnected = connected;
   }
 
@@ -132,12 +132,12 @@ export class LiskPeer extends events.EventEmitter {
    * Destroy the peer and close/destroy the associated socket
    * This does not close the incoming socket connection
    */
-  public destroy() {
+  public destroy(): void {
     clearInterval(this.statusUpdateInterval);
     this.client.destroy();
   }
 
-  public requestBlocks() {
+  public requestBlocks(): void {
     //if (this.httpActive) {
     //    this.client.getBlocksHTTP().then((blockData) => {
     //
@@ -149,17 +149,17 @@ export class LiskPeer extends events.EventEmitter {
     //}
   }
 
-  private onClientConnect() {
+  private onClientConnect(): void {
     // console.debug(`connected to ${this._options.ip}:${this._options.wsPort}`);
     this._state = PeerState.ONLINE;
   }
 
-  private onClientDisconnect() {
+  private onClientDisconnect(): void {
     // console.debug(`disconnected from ${this._options.ip}:${this._options.wsPort}`);
     this._state = PeerState.OFFLINE;
   }
 
-  private onClientError(error: any) {
+  private onClientError(error: any): void {
     console.error(`connection error from ${this._options.ip}:${this._options.wsPort}: ${error}`);
   }
 
@@ -167,8 +167,8 @@ export class LiskPeer extends events.EventEmitter {
    * Trigger a status update
    * Updates the node status, connected peers
    */
-  private updateStatus() {
-    if (this._state != PeerState.ONLINE) return;
+  private updateStatus(): void {
+    if (this._state !== PeerState.ONLINE) return;
 
     this.client
       .getStatus()

@@ -40,7 +40,7 @@ export class LiskClient {
     connectHandler: () => void,
     closeHandler: () => void,
     errorHandler: (error: any) => void,
-  ) {
+  ): void {
     // Initiate the connection to the server
     this.socket = socketCluster.create(this.options);
     WampClient.registerWamp(this.socket);
@@ -50,7 +50,7 @@ export class LiskClient {
     this.socket.on("error", errorHandler);
   }
 
-  public destroy() {
+  public destroy(): void {
     this.socket.destroy();
   }
 
