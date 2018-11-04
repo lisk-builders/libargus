@@ -9,8 +9,27 @@ export class HttpApi {
     protected readonly secure: boolean = false,
   ) {}
 
+  // node
+
   public getNodeStatus(): Promise<ResponseObject<NodeStatusExtended>> {
     return this.get(`${this.baseUrl()}/node/status`);
+  }
+
+  public getForgingStatus(): Promise<ResponseList<ForgingStatus>> {
+    return this.get(`${this.baseUrl()}/node/status/forging`);
+  }
+
+  public updateForging(
+    forging: boolean,
+    pubkey: string,
+    password: string,
+  ): Promise<ResponseList<ForgingStatus>> {
+    const payload = {
+      forging: forging,
+      password: password,
+      publicKey: pubkey,
+    };
+    return request.put(`${this.baseUrl()}/node/status/forging`, { json: payload }).promise();
   }
 
   public getBlocks(): Promise<ResponseList<Block>> {
@@ -82,6 +101,11 @@ export interface NodeStatusExtended {
   readonly networkHeight: number;
   readonly syncing: boolean;
   readonly transactions: TransactionsStats;
+}
+
+export interface ForgingStatus {
+  readonly forging: boolean;
+  readonly publicKey: string;
 }
 
 export interface ForgerMeta {

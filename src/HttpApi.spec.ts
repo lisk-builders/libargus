@@ -27,6 +27,17 @@ describe("HttpApi", () => {
     expect(status.data.transactions).to.be.not.undefined;
   });
 
+  it("can get forging status", done => {
+    // not whitelisted :(
+    api
+      .getForgingStatus()
+      .then(() => done("must not resolve"))
+      .catch(error => {
+        expect(error).to.match(/403 - {"message":"Access Denied"}/i);
+        done();
+      });
+  });
+
   it("can get blocks", async () => {
     const response = await api.getBlocks();
     expect(response.data.length).to.equal(100);
