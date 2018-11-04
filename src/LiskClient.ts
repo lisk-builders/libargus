@@ -62,8 +62,8 @@ export class LiskClient {
     return this.socket.call("list");
   }
 
-  public getBlocks(lasBlockID?: string): Promise<WSBlockResponse> {
-    return this.socket.call("blocks", { lastId: lasBlockID || "" });
+  public getBlocks(lasBlockId?: string): Promise<WSBlockResponse> {
+    return this.socket.call("blocks", { lastId: lasBlockId || "" });
   }
 }
 
