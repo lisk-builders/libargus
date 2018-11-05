@@ -1,15 +1,11 @@
 import * as socketCluster from "socketcluster-client";
 
 import { WampClient } from "./websockets/WampClient";
-import { HttpApi } from "./HttpApi";
 
 /***
- * LiskClient is a client for the Lisk Core Websocket and HTTP protocol.
- * It maintains a Websocket connection and can call various HTTP endpoints.
+ * A client for the Lisk p2p Websocket protocol.
  */
-export class LiskClient {
-  public readonly http: HttpApi;
-
+export class WsApi {
   public options = {
     hostname: "betanet.lisk.io",
     port: 5001,
@@ -28,12 +24,11 @@ export class LiskClient {
 
   private socket: any;
 
-  constructor(hostname: string, wsPort: number, httpPort: number, query: object) {
-    this.options.hostname = hostname;
+  constructor(ip: string, wsPort: number, httpPort: number, query: object) {
+    this.options.hostname = ip;
     this.options.port = wsPort;
     this.options.httpPort = httpPort;
     this.options.query = query;
-    this.http = new HttpApi(this.options.hostname, this.options.httpPort);
   }
 
   public connect(

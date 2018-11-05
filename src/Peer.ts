@@ -1,65 +1,69 @@
 import * as events from "events";
-import { LiskClient, NodeStatus, PeerInfo } from "./LiskClient";
 import * as _ from "underscore";
 
-export enum LiskPeerEvent {
-  statusUpdated = "STATUS_UPDATED",
-  peersUpdated = "PEERS_UPDATED",
-  nodeStuck = "NODE_STUCK",
+import { HttpApi } from "./HttpApi";
+import { NodeStatus, PeerInfo, WsApi } from "./WsApi";
+
+export enum PeerEvent {
+  StatusUpdated = "STATUS_UPDATED",
+  PeersUpdated = "PEERS_UPDATED",
+  NodeStuck = "NODE_STUCK",
 }
 
 export enum PeerState {
-  ONLINE,
-  OFFLINE,
+  Online,
+  Offline,
 }
 
 export interface PeerOptions {
-  ip: string;
-  wsPort: number;
-  httpPort: number;
-  nonce: string;
-  nethash: string;
-  ownWSPort: number;
-  ownHttpPort: number;
+  readonly ip: string;
+  readonly wsPort: number;
+  readonly httpPort: number;
+  readonly nethash: string;
+  readonly nonce?: string;
+}
+
+export interface OwnNodeOptions {
+  readonly httpPort: number;
+  readonly wsPort: number;
+  readonly nonce: string;
+  readonly os: string;
+  readonly version: string;
 }
 
 /***
- * LiskPeer is a wrapper for LiskClient that automatically updates the node status and keeps track of the connection
+ * A wrapper for LiskClient that automatically updates the node status and keeps track of the connection
  * and checks whether the node is sane (not stuck)
  */
-export class LiskPeer extends events.EventEmitter {
-  public client: LiskClient;
+export class Peer extends events.EventEmitter {
+  public readonly ws: WsApi;
+  public readonly http: HttpApi;
+  public readonly options: PeerOptions;
   public peers: PeerInfo[] = [];
-  public knownBy: number = 0;
+
   private _lastHeightUpdate: number = 0;
   private _stuck: boolean = false;
-  private statusUpdateInterval: NodeJS.Timeout;
+  private readonly statusUpdateInterval: NodeJS.Timeout;
 
-  constructor(
-    readonly _options: PeerOptions,
-    readonly ownNonce: string,
-    readonly ownVersion: string,
-  ) {
+  constructor(options: PeerOptions, ownNode: OwnNodeOptions) {
     super();
 
-    this.client = new LiskClient(_options.ip, _options.wsPort, _options.httpPort, {
-      nonce: ownNonce,
-      nethash: _options.nethash,
-      version: ownVersion,
-      os: "linux",
+    this.options = options;
+    this.ws = new WsApi(options.ip, options.wsPort, options.httpPort, {
+      ...ownNode,
+      nethash: options.nethash,
       height: 500,
-      wsPort: _options.ownWSPort,
-      httpPort: _options.ownHttpPort,
     });
+    this.http = new HttpApi(options.ip, options.httpPort);
 
     // Check whether client supports HTTP
-    this.client.http
+    this.http
       .getNodeStatus()
       .then(() => (this._httpActive = true))
       .catch(() => {});
 
     // Connect via WebSocket
-    this.client.connect(
+    this.ws.connect(
       () => this.onClientConnect(),
       () => this.onClientDisconnect(),
       error => this.onClientError(error),
@@ -69,7 +73,22 @@ export class LiskPeer extends events.EventEmitter {
     this.statusUpdateInterval = setInterval(() => this.updateStatus(), 2000);
   }
 
-  private _state: PeerState = PeerState.OFFLINE;
+  /**
+   * The best nonce value available
+   */
+  get nonce(): string | undefined {
+    if (this._status) {
+      return this._status.nonce;
+    }
+
+    if (this.options.nonce) {
+      return this.options.nonce;
+    }
+
+    return undefined;
+  }
+
+  private _state: PeerState = PeerState.Offline;
 
   get state(): PeerState {
     return this._state;
@@ -93,10 +112,6 @@ export class LiskPeer extends events.EventEmitter {
     return this._wsServerConnected;
   }
 
-  get options(): PeerOptions {
-    return this._options;
-  }
-
   /***
    * Handles new NodeStatus received from the Peer
    * Updates sync status and triggers events in case the node is stuck
@@ -108,7 +123,7 @@ export class LiskPeer extends events.EventEmitter {
       this._stuck = false;
     } else if (!this._stuck && Date.now() - this._lastHeightUpdate > 20000) {
       this._stuck = true;
-      this.emit(LiskPeerEvent.nodeStuck);
+      this.emit(PeerEvent.NodeStuck);
     }
 
     // Apply new status
@@ -116,10 +131,9 @@ export class LiskPeer extends events.EventEmitter {
       this._status = status;
     }
     this._status = Object.assign(this._status, status);
-    this._options.nonce = status.nonce;
 
     // Emit the status update
-    this.emit(LiskPeerEvent.statusUpdated, status);
+    this.emit(PeerEvent.StatusUpdated, status);
   }
 
   /***
@@ -136,7 +150,7 @@ export class LiskPeer extends events.EventEmitter {
    */
   public destroy(): void {
     clearInterval(this.statusUpdateInterval);
-    this.client.destroy();
+    this.ws.destroy();
   }
 
   public requestBlocks(): void {
@@ -145,7 +159,7 @@ export class LiskPeer extends events.EventEmitter {
     //
     //    })
     //} else {
-    this.client.getBlocks().then(blockData => {
+    this.ws.getBlocks().then(blockData => {
       const filteredBlocks = _.uniq(blockData.blocks, entry => entry.b_id);
     });
     //}
@@ -153,16 +167,16 @@ export class LiskPeer extends events.EventEmitter {
 
   private onClientConnect(): void {
     // console.debug(`connected to ${this._options.ip}:${this._options.wsPort}`);
-    this._state = PeerState.ONLINE;
+    this._state = PeerState.Online;
   }
 
   private onClientDisconnect(): void {
     // console.debug(`disconnected from ${this._options.ip}:${this._options.wsPort}`);
-    this._state = PeerState.OFFLINE;
+    this._state = PeerState.Offline;
   }
 
   private onClientError(error: any): void {
-    console.error(`connection error from ${this._options.ip}:${this._options.wsPort}: ${error}`);
+    console.error(`connection error from ${this.options.ip}:${this.options.wsPort}: ${error}`);
   }
 
   /***
@@ -170,21 +184,21 @@ export class LiskPeer extends events.EventEmitter {
    * Updates the node status, connected peers
    */
   private updateStatus(): void {
-    if (this._state !== PeerState.ONLINE) {
+    if (this._state !== PeerState.Online) {
       return;
     }
 
-    this.client
+    this.ws
       .getStatus()
       .then(status => this.handleStatusUpdate(status))
-      .then(() => this.client.getPeers())
+      .then(() => this.ws.getPeers())
       .then(res => {
         this.peers = res.peers;
-        this.emit(LiskPeerEvent.peersUpdated, res.peers);
+        this.emit(PeerEvent.PeersUpdated, res.peers);
       })
       .catch(err =>
         console.warn(
-          `could not update status of ${this._options.ip}:${this._options.wsPort}: ${err}`,
+          `could not update status of ${this.options.ip}:${this.options.wsPort}: ${err}`,
         ),
       );
   }

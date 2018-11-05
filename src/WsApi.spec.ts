@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { LiskClient } from "./LiskClient";
+import { WsApi } from "./WsApi";
 import { makeNonce } from "./util/nonce";
 
 const nodeHostname = process.env.LISK_NODE_HOSTNAME || "testnet.lisk.io";
@@ -8,7 +8,7 @@ const nodeHttpPort = Number.parseInt(process.env.LISK_NODE_PORT || "7000", 10);
 const nodeWsPort = Number.parseInt(process.env.LISK_NODE_WSPORT || "7001", 10);
 const nodeSecure = !!process.env.LISK_NODE_SECURE;
 
-describe("LiskClient", () => {
+describe("WsApi", () => {
   let ownNode: object;
 
   beforeEach(() => {
@@ -24,16 +24,16 @@ describe("LiskClient", () => {
   });
 
   it("can be constructed", () => {
-    const client = new LiskClient(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
-    expect(client).not.to.be.undefined;
+    const wsApi = new WsApi(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
+    expect(wsApi).not.to.be.undefined;
   });
 
   it("can get status via websocket", done => {
-    const client = new LiskClient(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
-    client.connect(
+    const wsApi = new WsApi(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
+    wsApi.connect(
       async () => {
         try {
-          const status = await client.getStatus();
+          const status = await wsApi.getStatus();
           expect(status.success).to.be.true;
           expect(status.os).to.match(/^linux4/);
           expect(status.httpPort).to.eql(nodeHttpPort);
@@ -45,7 +45,7 @@ describe("LiskClient", () => {
         } catch (error) {
           done(error);
         } finally {
-          client.destroy();
+          wsApi.destroy();
         }
       },
       () => {},
@@ -56,11 +56,11 @@ describe("LiskClient", () => {
   });
 
   it("can get peers via websocket", done => {
-    const client = new LiskClient(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
-    client.connect(
+    const wsApi = new WsApi(nodeHostname, nodeWsPort, nodeHttpPort, ownNode);
+    wsApi.connect(
       async () => {
         try {
-          const response = await client.getPeers();
+          const response = await wsApi.getPeers();
           expect(response.success).to.be.true;
           expect(response.peers.length).to.be.within(3, 100);
           for (const peer of response.peers) {
@@ -72,7 +72,7 @@ describe("LiskClient", () => {
         } catch (error) {
           done(error);
         } finally {
-          client.destroy();
+          wsApi.destroy();
         }
       },
       () => {},
