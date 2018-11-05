@@ -3,8 +3,7 @@ import * as socketCluster from "socketcluster-client";
 import { WampClient } from "./websockets/WampClient";
 
 /***
- * LiskClient is a client for the Lisk Core Websocket and HTTP protocol.
- * It maintains a Websocket connection and can call various HTTP endpoints.
+ * A client for the Lisk p2p Websocket protocol.
  */
 export class WsApi {
   public options = {
