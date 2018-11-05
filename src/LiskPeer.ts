@@ -33,7 +33,7 @@ export class LiskPeer extends events.EventEmitter {
   public knownBy: number = 0;
   private _lastHeightUpdate: number = 0;
   private _stuck: boolean = false;
-  private statusUpdateInterval: NodeJS.Timeout;
+  private readonly statusUpdateInterval: NodeJS.Timeout;
 
   constructor(
     readonly _options: PeerOptions,
