@@ -6,7 +6,7 @@ import { WampClient } from "./websockets/WampClient";
  * A client for the Lisk p2p Websocket protocol.
  */
 export class WsApi {
-  public options = {
+  public readonly options = {
     hostname: "betanet.lisk.io",
     port: 5001,
     httpPort: 5000,
@@ -22,6 +22,7 @@ export class WsApi {
     },
   };
 
+  // tslint:disable-next-line:readonly-keyword
   private socket: any;
 
   constructor(ip: string, wsPort: number, httpPort: number, query: object) {
@@ -119,12 +120,12 @@ export interface WsBlock {
 }
 
 export interface WsBlockResponse {
-  readonly blocks: WsBlock[];
+  readonly blocks: ReadonlyArray<WsBlock>;
 }
 
 export interface WsPeerResponse {
   readonly success: boolean;
-  readonly peers: PeerInfo[];
+  readonly peers: ReadonlyArray<PeerInfo>;
 }
 
 export interface PeerInfo {

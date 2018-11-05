@@ -2,7 +2,8 @@
     "defaultSeverity": "error",
     "extends": [
       "tslint:latest",
-      "tslint-immutable"
+      "tslint-immutable",
+      "tslint-no-unused-expression-chai"
     ],
     "jsRules": {},
     "rules": {
@@ -22,7 +23,7 @@
       "no-loop-statement": false,
       "no-method-signature": true,
       "no-mixed-interface": false,
-      "no-object-mutation": true,
+      "no-object-mutation": false,
       "no-parameter-reassignment": true,
       "no-unnecessary-class": ["allow-static-only"],
       "no-var-keyword": true,
