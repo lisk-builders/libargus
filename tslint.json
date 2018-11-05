@@ -2,7 +2,8 @@
     "defaultSeverity": "error",
     "extends": [
       "tslint:latest",
-      "tslint-immutable"
+      "tslint-immutable",
+      "tslint-no-unused-expression-chai"
     ],
     "jsRules": {},
     "rules": {
