@@ -28,7 +28,6 @@ describe("Peer", () => {
       httpPort: 7000,
       wsPort: 7001,
       nethash: "da3ed6a45429278bac2666961289ca17ad86595d33b31037615d4b8e8f158bba",
-      nonce: "",
     };
     const peer = new Peer(options, ownNode);
     expect(peer).not.to.be.undefined;
@@ -42,7 +41,6 @@ describe("Peer", () => {
       httpPort: 7000,
       wsPort: 7001,
       nethash: "da3ed6a45429278bac2666961289ca17ad86595d33b31037615d4b8e8f158bba",
-      nonce: "",
     };
     const peer = new Peer(options, ownNode);
     expect(peer.state).to.eql(PeerState.Offline);

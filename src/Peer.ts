@@ -16,11 +16,11 @@ export enum PeerState {
 }
 
 export interface PeerOptions {
-  ip: string;
-  wsPort: number;
-  httpPort: number;
-  nonce: string;
-  nethash: string;
+  readonly ip: string;
+  readonly wsPort: number;
+  readonly httpPort: number;
+  readonly nethash: string;
+  readonly nonce?: string;
 }
 
 export interface OwnNodeOptions {
@@ -38,22 +38,23 @@ export interface OwnNodeOptions {
 export class Peer extends events.EventEmitter {
   public readonly ws: WsApi;
   public readonly http: HttpApi;
+  public readonly options: PeerOptions;
   public peers: PeerInfo[] = [];
 
   private _lastHeightUpdate: number = 0;
   private _stuck: boolean = false;
   private readonly statusUpdateInterval: NodeJS.Timeout;
 
-  constructor(readonly _options: PeerOptions, ownNode: OwnNodeOptions) {
+  constructor(options: PeerOptions, ownNode: OwnNodeOptions) {
     super();
 
-    this.ws = new WsApi(_options.ip, _options.wsPort, _options.httpPort, {
+    this.options = options;
+    this.ws = new WsApi(options.ip, options.wsPort, options.httpPort, {
       ...ownNode,
-      nethash: _options.nethash,
+      nethash: options.nethash,
       height: 500,
     });
-
-    this.http = new HttpApi(_options.ip, _options.httpPort);
+    this.http = new HttpApi(options.ip, options.httpPort);
 
     // Check whether client supports HTTP
     this.http
@@ -70,6 +71,21 @@ export class Peer extends events.EventEmitter {
 
     // Schedule status updates
     this.statusUpdateInterval = setInterval(() => this.updateStatus(), 2000);
+  }
+
+  /**
+   * The best nonce value available
+   */
+  get nonce(): string | undefined {
+    if (this._status) {
+      return this._status.nonce;
+    }
+
+    if (this.options.nonce) {
+      return this.options.nonce;
+    }
+
+    return undefined;
   }
 
   private _state: PeerState = PeerState.Offline;
@@ -96,10 +112,6 @@ export class Peer extends events.EventEmitter {
     return this._wsServerConnected;
   }
 
-  get options(): PeerOptions {
-    return this._options;
-  }
-
   /***
    * Handles new NodeStatus received from the Peer
    * Updates sync status and triggers events in case the node is stuck
@@ -119,7 +131,6 @@ export class Peer extends events.EventEmitter {
       this._status = status;
     }
     this._status = Object.assign(this._status, status);
-    this._options.nonce = status.nonce;
 
     // Emit the status update
     this.emit(PeerEvent.StatusUpdated, status);
@@ -165,7 +176,7 @@ export class Peer extends events.EventEmitter {
   }
 
   private onClientError(error: any): void {
-    console.error(`connection error from ${this._options.ip}:${this._options.wsPort}: ${error}`);
+    console.error(`connection error from ${this.options.ip}:${this.options.wsPort}: ${error}`);
   }
 
   /***
@@ -187,7 +198,7 @@ export class Peer extends events.EventEmitter {
       })
       .catch(err =>
         console.warn(
-          `could not update status of ${this._options.ip}:${this._options.wsPort}: ${err}`,
+          `could not update status of ${this.options.ip}:${this.options.wsPort}: ${err}`,
         ),
       );
   }
