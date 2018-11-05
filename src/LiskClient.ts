@@ -28,8 +28,8 @@ export class LiskClient {
 
   private socket: any;
 
-  constructor(hostname: string, wsPort: number, httpPort: number, query: object) {
-    this.options.hostname = hostname;
+  constructor(ip: string, wsPort: number, httpPort: number, query: object) {
+    this.options.hostname = ip;
     this.options.port = wsPort;
     this.options.httpPort = httpPort;
     this.options.query = query;
