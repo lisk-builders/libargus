@@ -2,7 +2,7 @@ import * as events from "events";
 import * as _ from "underscore";
 
 import { HttpApi } from "./HttpApi";
-import { LiskClient, NodeStatus, PeerInfo } from "./LiskClient";
+import { NodeStatus, PeerInfo, WsApi } from "./LiskClient";
 
 export enum LiskPeerEvent {
   statusUpdated = "STATUS_UPDATED",
@@ -36,7 +36,7 @@ export interface OwnNodeOptions {
  * and checks whether the node is sane (not stuck)
  */
 export class LiskPeer extends events.EventEmitter {
-  public client: LiskClient;
+  public readonly ws: WsApi;
   public readonly http: HttpApi;
   public peers: PeerInfo[] = [];
 
@@ -47,7 +47,7 @@ export class LiskPeer extends events.EventEmitter {
   constructor(readonly _options: PeerOptions, ownNode: OwnNodeOptions) {
     super();
 
-    this.client = new LiskClient(_options.ip, _options.wsPort, _options.httpPort, {
+    this.ws = new WsApi(_options.ip, _options.wsPort, _options.httpPort, {
       ...ownNode,
       nethash: _options.nethash,
       height: 500,
@@ -62,7 +62,7 @@ export class LiskPeer extends events.EventEmitter {
       .catch(() => {});
 
     // Connect via WebSocket
-    this.client.connect(
+    this.ws.connect(
       () => this.onClientConnect(),
       () => this.onClientDisconnect(),
       error => this.onClientError(error),
@@ -139,7 +139,7 @@ export class LiskPeer extends events.EventEmitter {
    */
   public destroy(): void {
     clearInterval(this.statusUpdateInterval);
-    this.client.destroy();
+    this.ws.destroy();
   }
 
   public requestBlocks(): void {
@@ -148,7 +148,7 @@ export class LiskPeer extends events.EventEmitter {
     //
     //    })
     //} else {
-    this.client.getBlocks().then(blockData => {
+    this.ws.getBlocks().then(blockData => {
       const filteredBlocks = _.uniq(blockData.blocks, entry => entry.b_id);
     });
     //}
@@ -177,10 +177,10 @@ export class LiskPeer extends events.EventEmitter {
       return;
     }
 
-    this.client
+    this.ws
       .getStatus()
       .then(status => this.handleStatusUpdate(status))
-      .then(() => this.client.getPeers())
+      .then(() => this.ws.getPeers())
       .then(res => {
         this.peers = res.peers;
         this.emit(LiskPeerEvent.peersUpdated, res.peers);

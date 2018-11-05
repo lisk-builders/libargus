@@ -6,7 +6,7 @@ import { WampClient } from "./websockets/WampClient";
  * LiskClient is a client for the Lisk Core Websocket and HTTP protocol.
  * It maintains a Websocket connection and can call various HTTP endpoints.
  */
-export class LiskClient {
+export class WsApi {
   public options = {
     hostname: "betanet.lisk.io",
     port: 5001,
