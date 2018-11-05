@@ -5,14 +5,14 @@ import { HttpApi } from "./HttpApi";
 import { NodeStatus, PeerInfo, WsApi } from "./WsApi";
 
 export enum PeerEvent {
-  statusUpdated = "STATUS_UPDATED",
-  peersUpdated = "PEERS_UPDATED",
-  nodeStuck = "NODE_STUCK",
+  StatusUpdated = "STATUS_UPDATED",
+  PeersUpdated = "PEERS_UPDATED",
+  NodeStuck = "NODE_STUCK",
 }
 
 export enum PeerState {
-  ONLINE,
-  OFFLINE,
+  Online,
+  Offline,
 }
 
 export interface PeerOptions {
@@ -72,7 +72,7 @@ export class Peer extends events.EventEmitter {
     this.statusUpdateInterval = setInterval(() => this.updateStatus(), 2000);
   }
 
-  private _state: PeerState = PeerState.OFFLINE;
+  private _state: PeerState = PeerState.Offline;
 
   get state(): PeerState {
     return this._state;
@@ -111,7 +111,7 @@ export class Peer extends events.EventEmitter {
       this._stuck = false;
     } else if (!this._stuck && Date.now() - this._lastHeightUpdate > 20000) {
       this._stuck = true;
-      this.emit(PeerEvent.nodeStuck);
+      this.emit(PeerEvent.NodeStuck);
     }
 
     // Apply new status
@@ -122,7 +122,7 @@ export class Peer extends events.EventEmitter {
     this._options.nonce = status.nonce;
 
     // Emit the status update
-    this.emit(PeerEvent.statusUpdated, status);
+    this.emit(PeerEvent.StatusUpdated, status);
   }
 
   /***
@@ -156,12 +156,12 @@ export class Peer extends events.EventEmitter {
 
   private onClientConnect(): void {
     // console.debug(`connected to ${this._options.ip}:${this._options.wsPort}`);
-    this._state = PeerState.ONLINE;
+    this._state = PeerState.Online;
   }
 
   private onClientDisconnect(): void {
     // console.debug(`disconnected from ${this._options.ip}:${this._options.wsPort}`);
-    this._state = PeerState.OFFLINE;
+    this._state = PeerState.Offline;
   }
 
   private onClientError(error: any): void {
@@ -173,7 +173,7 @@ export class Peer extends events.EventEmitter {
    * Updates the node status, connected peers
    */
   private updateStatus(): void {
-    if (this._state !== PeerState.ONLINE) {
+    if (this._state !== PeerState.Online) {
       return;
     }
 
@@ -183,7 +183,7 @@ export class Peer extends events.EventEmitter {
       .then(() => this.ws.getPeers())
       .then(res => {
         this.peers = res.peers;
-        this.emit(PeerEvent.peersUpdated, res.peers);
+        this.emit(PeerEvent.PeersUpdated, res.peers);
       })
       .catch(err =>
         console.warn(

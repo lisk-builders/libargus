@@ -45,11 +45,11 @@ describe("Peer", () => {
       nonce: "",
     };
     const peer = new Peer(options, ownNode);
-    expect(peer.state).to.eql(PeerState.OFFLINE);
+    expect(peer.state).to.eql(PeerState.Offline);
 
     setTimeout(() => {
       try {
-        expect(peer.state).to.eql(PeerState.ONLINE);
+        expect(peer.state).to.eql(PeerState.Online);
         expect(peer.httpActive).to.be.false;
         done();
       } catch (error) {
