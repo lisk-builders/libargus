@@ -19,8 +19,14 @@ export interface PeerOptions {
   httpPort: number;
   nonce: string;
   nethash: string;
-  ownWSPort: number;
-  ownHttpPort: number;
+}
+
+export interface OwnNodeOptions {
+  readonly httpPort: number;
+  readonly wsPort: number;
+  readonly nonce: string;
+  readonly os: string;
+  readonly version: string;
 }
 
 /***
@@ -35,21 +41,13 @@ export class LiskPeer extends events.EventEmitter {
   private _stuck: boolean = false;
   private readonly statusUpdateInterval: NodeJS.Timeout;
 
-  constructor(
-    readonly _options: PeerOptions,
-    readonly ownNonce: string,
-    readonly ownVersion: string,
-  ) {
+  constructor(readonly _options: PeerOptions, ownNode: OwnNodeOptions) {
     super();
 
     this.client = new LiskClient(_options.ip, _options.wsPort, _options.httpPort, {
-      nonce: ownNonce,
+      ...ownNode,
       nethash: _options.nethash,
-      version: ownVersion,
-      os: "linux",
       height: 500,
-      wsPort: _options.ownWSPort,
-      httpPort: _options.ownHttpPort,
     });
 
     // Check whether client supports HTTP
