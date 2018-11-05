@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { WsApi } from "./LiskClient";
+import { WsApi } from "./WsApi";
 import { makeNonce } from "./util/nonce";
 
 const nodeHostname = process.env.LISK_NODE_HOSTNAME || "testnet.lisk.io";

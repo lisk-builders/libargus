@@ -2,7 +2,7 @@ import * as events from "events";
 import * as _ from "underscore";
 
 import { HttpApi } from "./HttpApi";
-import { NodeStatus, PeerInfo, WsApi } from "./LiskClient";
+import { NodeStatus, PeerInfo, WsApi } from "./WsApi";
 
 export enum LiskPeerEvent {
   statusUpdated = "STATUS_UPDATED",
