@@ -39,11 +39,22 @@ export class Peer extends events.EventEmitter {
   public readonly ws: WsApi;
   public readonly http: HttpApi;
   public readonly options: PeerOptions;
-  public peers: PeerInfo[] = [];
+  // tslint:disable-next-line:readonly-array
+  public readonly peers: PeerInfo[] = [];
 
-  private _lastHeightUpdate: number = 0;
-  private _stuck: boolean = false;
+  // tslint:disable-next-line:readonly-keyword
+  private lastHeightUpdate: number = 0;
+  // tslint:disable-next-line:readonly-keyword
+  private stuck: boolean = false;
   private readonly statusUpdateInterval: NodeJS.Timeout;
+  // tslint:disable-next-line:readonly-keyword variable-name
+  private _state: PeerState = PeerState.Offline;
+  // tslint:disable-next-line:readonly-keyword variable-name
+  private _status: NodeStatus | undefined;
+  // tslint:disable-next-line:readonly-keyword variable-name
+  private _httpActive: boolean = false;
+  // tslint:disable-next-line:readonly-keyword variable-name
+  private _wsServerConnected: boolean = false;
 
   constructor(options: PeerOptions, ownNode: OwnNodeOptions) {
     super();
@@ -88,25 +99,17 @@ export class Peer extends events.EventEmitter {
     return undefined;
   }
 
-  private _state: PeerState = PeerState.Offline;
-
   get state(): PeerState {
     return this._state;
   }
-
-  private _status: NodeStatus | undefined;
 
   get status(): NodeStatus | undefined {
     return this._status;
   }
 
-  private _httpActive: boolean = false;
-
   get httpActive(): boolean {
     return this._httpActive;
   }
-
-  private _wsServerConnected: boolean = false;
 
   get wsServerConnected(): boolean {
     return this._wsServerConnected;
@@ -119,18 +122,14 @@ export class Peer extends events.EventEmitter {
    */
   public handleStatusUpdate(status: NodeStatus): void {
     if (!this._status || status.height > this._status.height) {
-      this._lastHeightUpdate = Date.now();
-      this._stuck = false;
-    } else if (!this._stuck && Date.now() - this._lastHeightUpdate > 20000) {
-      this._stuck = true;
+      this.lastHeightUpdate = Date.now();
+      this.stuck = false;
+    } else if (!this.stuck && Date.now() - this.lastHeightUpdate > 20000) {
+      this.stuck = true;
       this.emit(PeerEvent.NodeStuck);
     }
 
-    // Apply new status
-    if (!this._status) {
-      this._status = status;
-    }
-    this._status = Object.assign(this._status, status);
+    this._status = status;
 
     // Emit the status update
     this.emit(PeerEvent.StatusUpdated, status);
@@ -192,9 +191,11 @@ export class Peer extends events.EventEmitter {
       .getStatus()
       .then(status => this.handleStatusUpdate(status))
       .then(() => this.ws.getPeers())
-      .then(res => {
-        this.peers = res.peers;
-        this.emit(PeerEvent.PeersUpdated, res.peers);
+      .then(response => {
+        this.peers.length = 0;
+        this.peers.push(...response.peers);
+
+        this.emit(PeerEvent.PeersUpdated, response.peers);
       })
       .catch(err =>
         console.warn(

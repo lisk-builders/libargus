@@ -125,7 +125,7 @@ export interface ForgerDetail {
 
 export interface ForgerResponse {
   readonly meta: ForgerMeta;
-  readonly data: ForgerDetail[];
+  readonly data: ReadonlyArray<ForgerDetail>;
 }
 
 export interface Account {
@@ -153,5 +153,5 @@ export interface ResponseObject<T> {
 
 export interface ResponseList<T> {
   readonly meta: any;
-  readonly data: T[];
+  readonly data: ReadonlyArray<T>;
 }
