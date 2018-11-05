@@ -30,7 +30,7 @@ export interface PeerOptions {
 export class LiskPeer extends events.EventEmitter {
   public client: LiskClient;
   public peers: PeerInfo[] = [];
-  public knownBy: number = 0;
+
   private _lastHeightUpdate: number = 0;
   private _stuck: boolean = false;
   private readonly statusUpdateInterval: NodeJS.Timeout;
