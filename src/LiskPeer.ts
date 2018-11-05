@@ -1,6 +1,8 @@
 import * as events from "events";
-import { LiskClient, NodeStatus, PeerInfo } from "./LiskClient";
 import * as _ from "underscore";
+
+import { HttpApi } from "./HttpApi";
+import { LiskClient, NodeStatus, PeerInfo } from "./LiskClient";
 
 export enum LiskPeerEvent {
   statusUpdated = "STATUS_UPDATED",
@@ -35,6 +37,7 @@ export interface OwnNodeOptions {
  */
 export class LiskPeer extends events.EventEmitter {
   public client: LiskClient;
+  public readonly http: HttpApi;
   public peers: PeerInfo[] = [];
 
   private _lastHeightUpdate: number = 0;
@@ -50,8 +53,10 @@ export class LiskPeer extends events.EventEmitter {
       height: 500,
     });
 
+    this.http = new HttpApi(_options.ip, _options.httpPort);
+
     // Check whether client supports HTTP
-    this.client.http
+    this.http
       .getNodeStatus()
       .then(() => (this._httpActive = true))
       .catch(() => {});
