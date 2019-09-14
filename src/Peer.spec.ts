@@ -18,6 +18,7 @@ describe("Peer", () => {
       version: "1.1.1",
       httpPort: 3000,
       wsPort: 3001,
+      protocolVersion: "1.1"
     };
   });
 
