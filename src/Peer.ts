@@ -29,6 +29,7 @@ export interface OwnNodeOptions {
   readonly nonce: string;
   readonly os: string;
   readonly version: string;
+  readonly protocolVersion: string;
 }
 
 /***
