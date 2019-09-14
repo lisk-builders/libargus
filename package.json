@@ -12,6 +12,7 @@
     "lint": "tslint -t verbose --project .",
     "prebuild": "yarn format && yarn lint",
     "build": "tsc",
+    "postinstall": "tsc",
     "test": "mocha \"build/**/*.spec.js\""
   },
   "dependencies": {
